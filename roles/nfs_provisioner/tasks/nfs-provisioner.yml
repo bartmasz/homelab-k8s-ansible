@@ -1,0 +1,32 @@
+- name: NFS Provisioner => Add helm repo
+  kubernetes.core.helm_repository:
+    name: nfs-subdir-external-provisioner
+    repo_url: https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+
+- name: NFS Provisioner => Create manifest folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - ~/manifests
+    - ~/manifests/nfs-provisioner
+
+- name: NFS Provisioner => Create values file
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0644"
+  loop:
+    - { src: values.yml.j2, dest: ~/manifests/nfs-provisioner/values.yml }
+
+- name: NFS Provisioner => Install NFS Provisioner
+  kubernetes.core.helm:
+    name: nfs-provisioner-release
+    chart_ref: nfs-subdir-external-provisioner/nfs-subdir-external-provisioner
+    chart_version: "{{ nfs_provisioner_version }}"
+    release_namespace: nfs-provisioner
+    create_namespace: true
+    values_files:
+      - ./manifests/nfs-provisioner/values.yml
+    wait: true

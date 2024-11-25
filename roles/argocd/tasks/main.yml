@@ -1,0 +1,6 @@
+- name: ArgoCD install
+  ansible.builtin.import_tasks: install.yml
+  tags: argocd-install
+# - name: ArgoCD configuration
+#   ansible.builtin.import_tasks: config.yml
+#   tags: argocd-config

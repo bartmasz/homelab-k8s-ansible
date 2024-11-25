@@ -1,0 +1,30 @@
+- name: Create the 'argocd' namespace
+  kubernetes.core.k8s:
+    name: argocd
+    api_version: v1
+    kind: Namespace
+    state: present
+
+- name: Download ArgoCD install.yaml file
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    dest: /tmp/argocd_install.yaml
+    mode: "0644"
+
+- name: Modify ConfigMap to add server.insecure = true
+  ansible.builtin.replace:
+    path: /tmp/argocd_install.yaml
+    regexp: "(^  name: argocd-cmd-params-cm$)"
+    replace: '\1\ndata:\n  server.insecure: "true"'
+
+- name: Apply the ArgoCD install.yaml to the 'argocd' namespace
+  kubernetes.core.k8s:
+    state: present
+    namespace: argocd
+    src: /tmp/argocd_install.yaml
+  notify: Restart the ArgoCD server deployment
+
+- name: Apply the ArgoCD ingress route
+  kubernetes.core.k8s:
+    state: present
+    template: "templates/argocd_ingress.yaml.j2"

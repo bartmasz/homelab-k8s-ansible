@@ -1,0 +1,3 @@
+- name: Create NFS Subdir External Provisioner
+  ansible.builtin.import_tasks: nfs-provisioner.yml
+  tags: nfs-provisioner

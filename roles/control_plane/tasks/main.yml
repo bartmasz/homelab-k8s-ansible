@@ -1,0 +1,15 @@
+- name: Setup environment
+  ansible.builtin.import_tasks: setup.yml
+  tags: control-plane-setup
+
+- name: Install Helm
+  ansible.builtin.import_tasks: helm.yml
+  tags: control-plane-helm
+
+- name: Control Plane init
+  ansible.builtin.import_tasks: init.yml
+  tags: control-plane-init
+
+- name: Control Plane network
+  ansible.builtin.import_tasks: network.yml
+  tags: control-plane-network

@@ -1,0 +1,39 @@
+- name: Helm => Add Docker's official GPG key
+  become: true
+  ansible.builtin.get_url:
+    url: https://baltocdn.com/helm/signing.asc
+    dest: /etc/apt/trusted.gpg.d/helm.asc
+    mode: "0644"
+    force: false
+
+- name: Helm => Get system architecture
+  ansible.builtin.command: dpkg --print-architecture
+  register: system_architecture
+  changed_when: false
+
+# yamllint disable rule:line-length
+- name: Helm => Add Docker repository
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "deb [arch={{ system_architecture.stdout }} signed-by=/etc/apt/trusted.gpg.d/helm.asc] https://baltocdn.com/helm/stable/{{ ansible_distribution | lower }} all main"
+    state: present
+    filename: helm
+
+- name: Helm => Update package lists
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Helm => Install Helm and git (used for plugins)
+  become: true
+  ansible.builtin.apt:
+    name:
+      - helm
+      - git
+    state: present
+
+- name: Helm => Install Helm diff plugin
+  ansible.builtin.shell: |
+    helm plugin uninstall diff
+    helm plugin install https://github.com/databus23/helm-diff
+  changed_when: true

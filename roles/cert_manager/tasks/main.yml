@@ -1,0 +1,11 @@
+- name: Cert-Manager install
+  ansible.builtin.import_tasks: install.yml
+  tags: cert-manager-install
+
+- name: Cert-Manager LetsEncrypt
+  ansible.builtin.import_tasks: letsencrypt.yml
+  tags: cert-manager-letsencrypt
+
+- name: Cert-Manager self-signed certificate
+  ansible.builtin.import_tasks: self-signed-cert.yml
+  tags: cert-manager-self-signed-cert

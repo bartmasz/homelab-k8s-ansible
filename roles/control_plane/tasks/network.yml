@@ -1,0 +1,19 @@
+- name: Network => Create manifest folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - ./manifests
+    - ./manifests/flannel
+
+- name: Network => Download flannel manifest
+  ansible.builtin.get_url:
+    url: https://github.com/flannel-io/flannel/releases/download/{{ flannel_version }}/kube-flannel.yml
+    dest: ~/manifests/flannel/kube-flannel.yaml
+    mode: "0644"
+
+- name: Network => Apply flannel manifest
+  kubernetes.core.k8s:
+    state: present
+    src: ~/manifests/flannel/kube-flannel.yaml

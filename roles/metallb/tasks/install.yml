@@ -1,0 +1,33 @@
+- name: Network => Create manifest folders
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - ./manifests
+    - ./manifests/metallb
+
+- name: Network => Download metallb manifest
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/metallb/metallb/{{ metallb_version }}/config/manifests/metallb-native.yaml
+    dest: ~/manifests/metallb/metallb-native.yaml
+    mode: "0644"
+
+- name: MetalLB => Create metallb config manifest
+  ansible.builtin.template:
+    src: metallb-config.yaml.j2
+    dest: ~/manifests/metallb/metallb-config.yaml
+    mode: "0644"
+
+- name: MetalLB => Apply metallb manifests
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ item }}"
+  loop:
+    - ~/manifests/metallb/metallb-native.yaml
+    - ~/manifests/metallb/metallb-config.yaml
+
+- name: MetalLB => Wait for metallb
+  ansible.builtin.command:
+    cmd: kubectl wait pod --all --for=condition=Ready --namespace=metallb-system --timeout=120s
+  changed_when: false

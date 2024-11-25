@@ -1,0 +1,3 @@
+- name: Create test nginx deployment
+  ansible.builtin.import_tasks: nginx.yml
+  tags: test-deployment-nginx

@@ -1,0 +1,27 @@
+- name: Common setup
+  hosts: cluster
+  roles:
+    - role: common_setup
+- name: Control Plane setup
+  hosts: managers
+  roles:
+    - role: control_plane
+- name: Workers setup
+  hosts: workers
+  roles:
+    - role: worker
+- name: Core K8S resources setup
+  hosts: managers
+  roles:
+    - role: metallb
+    - role: reflector
+    - role: cert_manager
+    - role: traefik
+    - role: nfs_provisioner
+    - role: argocd
+    - role: monitoring
+    - role: longhorn
+- name: Test Deployments
+  hosts: managers
+  roles:
+    - role: test_deployment

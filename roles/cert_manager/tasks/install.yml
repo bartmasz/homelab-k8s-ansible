@@ -1,0 +1,19 @@
+- name: Install => Create manifest folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - ./manifests
+    - ./manifests/cert-manager
+
+- name: Install => Download cert-manager manifest to the cluster
+  ansible.builtin.get_url:
+    url: https://github.com/cert-manager/cert-manager/releases/download/{{ cert_manager_version }}/cert-manager.yaml
+    dest: ~/manifests/cert-manager/cert-manager.yaml
+    mode: "0644"
+
+- name: Install => Apply cert-manager manifest
+  kubernetes.core.k8s:
+    state: present
+    src: ~/manifests/cert-manager/cert-manager.yaml

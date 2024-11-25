@@ -1,0 +1,52 @@
+- name: Issuers => Create manifest files
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "~/manifests/cert-manager/{{ item | basename | splitext | first }}"
+    mode: "0600"
+  loop:
+    - secret-cloudflare-token.yaml.j2
+    - issuer-letsencrypt-staging.yaml.j2
+    - issuer-letsencrypt-production.yaml.j2
+
+- name: Issuers => Apply dashboard manifests
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ item }}"
+  loop:
+    - ~/manifests/cert-manager/secret-cloudflare-token.yaml
+    - ~/manifests/cert-manager/issuer-letsencrypt-staging.yaml
+    - ~/manifests/cert-manager/issuer-letsencrypt-production.yaml
+
+- name: Certificates => Create manifest files
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "~/manifests/cert-manager/{{ item | basename | splitext | first }}"
+    mode: "0600"
+  loop:
+    - certificate-letsencrypt-staging.yaml.j2
+    - certificate-letsencrypt-production.yaml.j2
+
+- name: Certificates => Apply staging certificate manifest
+  kubernetes.core.k8s:
+    state: present
+    src: ~/manifests/cert-manager/certificate-letsencrypt-staging.yaml
+  when: cert_manager_letsencrypt_staging
+
+- name: Certificates => Wait for staging certificate
+  ansible.builtin.command:
+    cmd: kubectl wait --for=condition=Ready certificate/{{ cert_manager_cloudflare_domain | replace('.', '-') }}-staging --timeout=300s --namespace cert-manager
+  changed_when: false
+  when: cert_manager_letsencrypt_staging
+
+- name: Certificates => Apply production certificate manifest
+  kubernetes.core.k8s:
+    state: present
+    src: ~/manifests/cert-manager/certificate-letsencrypt-production.yaml
+  when: cert_manager_letsencrypt_production
+
+# yamllint disable rule:line-length
+- name: Certificates => Wait for production certificate
+  ansible.builtin.command:
+    cmd: kubectl wait --for=condition=Ready certificate/{{ cert_manager_cloudflare_domain | replace('.', '-') }}-production --timeout=300s --namespace cert-manager
+  changed_when: false
+  when: cert_manager_letsencrypt_production

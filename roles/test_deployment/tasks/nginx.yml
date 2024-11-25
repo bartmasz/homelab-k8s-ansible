@@ -1,0 +1,39 @@
+- name: Install => Create manifest folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - ~/manifests
+    - ~/manifests/test-deployment
+    - ~/manifests/test-deployment/nginx
+
+- name: Nginx => Create manifest files
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "~/manifests/test-deployment/nginx/{{ item | basename | splitext | first }}"
+    mode: "0600"
+  loop:
+    - deployment.yaml.j2
+    - service.yaml.j2
+    - ingress.yaml.j2
+
+- name: Traefik => Apply dashboard manifests
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ item }}"
+  loop:
+    - ~/manifests/test-deployment/nginx/deployment.yaml
+    - ~/manifests/test-deployment/nginx/service.yaml
+    - ~/manifests/test-deployment/nginx/ingress.yaml
+
+- name: PiHole => Update DNS
+  delegate_to: pihole
+  ansible.builtin.lineinfile:
+    path: /etc/pihole/custom.list
+    line: "{{ traefik_lb_ip }} nginx.{{ cert_manager_cloudflare_domain }}"
+
+- name: PiHole => Flush DNS
+  delegate_to: pihole
+  ansible.builtin.command: pihole restartdns reload
+  changed_when: true

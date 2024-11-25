@@ -1,0 +1,103 @@
+- name: SelfSignedCert => Create necessary folders
+  become: true
+  ansible.builtin.file:
+    state: directory
+    path: "/etc/ssl/{{ item.name }}"
+    mode: "{{ item.mode }}"
+  when: cert_manager_self_signed_ca
+  loop:
+    - { name: csr, mode: "0755" }
+
+- name: SelfSignedCert => Generate CA private key
+  become: true
+  community.crypto.openssl_privatekey:
+    path: /etc/ssl/private/self-signed-ca.key
+    size: 4096
+  when: cert_manager_self_signed_ca
+
+- name: SelfSignedCert => Generate OpenSSL CSR for Self-Signed CA
+  become: true
+  community.crypto.openssl_csr:
+    path: /etc/ssl/csr/self-signed-ca.csr
+    privatekey_path: /etc/ssl/private/self-signed-ca.key
+    basic_constraints:
+      - CA:TRUE
+    country_name: "{{ cert_manager_self_signed_ca_country_name }}"
+    organization_name: "{{ cert_manager_self_signed_ca_organization_name }}"
+    email_address: "{{ cert_manager_self_signed_ca_email }}"
+    common_name: "{{ cert_manager_self_signed_ca_common_name }}"
+    subject_alt_name:
+      - DNS:{{ cert_manager_self_signed_ca_common_name }}
+      - DNS:*.{{ cert_manager_self_signed_ca_common_name }}
+  when: cert_manager_self_signed_ca
+
+- name: SelfSignedCert => Generate self-signed CA certificate
+  become: true
+  community.crypto.x509_certificate:
+    path: /etc/ssl/certs/self-signed-ca.crt
+    privatekey_path: /etc/ssl/private/self-signed-ca.key
+    csr_path: /etc/ssl/csr/self-signed-ca.csr
+    provider: selfsigned # Self-signed certificate
+    selfsigned_not_after: +3650d # 10 years
+  when: cert_manager_self_signed_ca
+
+- name: SelfSignedCert => Download self-signed CA certificate
+  become: true
+  ansible.builtin.fetch:
+    src: /etc/ssl/certs/self-signed-ca.crt
+    dest: "{{ lookup('env', 'HOME') }}/"
+    owner: "{{ lookup('env', 'USER') }}"
+    group: "{{ lookup('env', 'USER') }}"
+    mode: "0644"
+    flat: true
+  when: cert_manager_self_signed_ca
+  run_once: true
+
+- name: SelfSignedCert => Base64 for CA private key
+  become: true
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      cat /etc/ssl/private/self-signed-ca.key | base64 -w 0
+    executable: /bin/bash
+  register: ca_privatekey_base64
+  when: cert_manager_self_signed_ca
+  changed_when: false
+
+- name: SelfSignedCert => Base64 for self-signed CA certificate
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      cat /etc/ssl/certs/self-signed-ca.crt | base64 -w 0
+    executable: /bin/bash
+  register: ca_cert_base64
+  when: cert_manager_self_signed_ca
+  changed_when: false
+
+- name: SelfSignedCert => Create manifest files
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "~/manifests/cert-manager/{{ item | basename | splitext | first }}"
+    mode: "0600"
+  when: cert_manager_self_signed_ca
+  loop:
+    - secret-local.yaml.j2
+    - issuer-local.yaml.j2
+    - certificate-local.yaml.j2
+
+- name: SelfSignedCert => Apply manifest
+  kubernetes.core.k8s:
+    state: present
+    src: "{{ item }}"
+  when: cert_manager_self_signed_ca
+  loop:
+    - ~/manifests/cert-manager/secret-local.yaml
+    - ~/manifests/cert-manager/issuer-local.yaml
+    - ~/manifests/cert-manager/certificate-local.yaml
+
+# yamllint disable rule:line-length
+- name: SelfSignedCert => Wait for self-signed certificate
+  ansible.builtin.command:
+    cmd: kubectl wait --for=condition=Ready certificate/{{ cert_manager_self_signed_ca_common_name | replace('.', '-') }} --timeout=300s --namespace cert-manager
+  changed_when: false
+  when: cert_manager_self_signed_local_cert

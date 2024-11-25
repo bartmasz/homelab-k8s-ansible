@@ -1,0 +1,3 @@
+- name: Prometheus stack setup
+  ansible.builtin.import_tasks: prometheus.yml
+  tags: prometheus

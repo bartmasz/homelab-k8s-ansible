@@ -1,0 +1,3 @@
+- name: Longhorn install
+  ansible.builtin.import_tasks: install.yml
+  tags: longhorn-install

@@ -1,0 +1,31 @@
+- name: Setup => Install packages
+  become: true
+  ansible.builtin.apt:
+    name:
+      - python3-kubernetes
+      - apache2-utils
+    state: present
+
+- name: Setup => Create .bash_aliases file
+  ansible.builtin.lineinfile:
+    path: "~/.bash_aliases"
+    create: true
+    line: "{{ item }}"
+    mode: "0644"
+  loop:
+    - alias ll='ls -l --almost-all --group-directories-first --sort=extension'
+    - alias k='kubectl'
+
+- name: Setup => Create kubectl autocompletion script
+  ansible.builtin.shell: |
+    kubectl completion bash > ~/.kubectl_completion_bash
+  args:
+    creates: ~/.kubectl_completion_bash
+
+- name: Setup => Add kubectl autocompletion script to .bashrc file
+  ansible.builtin.lineinfile:
+    path: ~/.bashrc
+    line: "{{ item }}"
+  loop:
+    - source ~/.kubectl_completion_bash
+    - complete -o default -F __start_kubectl k

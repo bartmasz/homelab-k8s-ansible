@@ -1,0 +1,40 @@
+defaultSettings:
+  defaultDataPath: /var/lib/longhorn/
+  defaultReplicaCount: 3
+  guaranteedEngineCPU: 0.25
+  defaultLonghornStaticStorageClass: longhorn
+  createDefaultDiskLabeledNodes: true
+  replicaNodeLevelSoftAntiAffinity: true
+
+# Node selectors and tolerations for Longhorn components
+longhornManager:
+  nodeSelector:
+    longhorn: "true"
+  tolerations:
+    - key: "node-role.kubernetes.io/longhorn"
+      operator: "Exists"
+      effect: "NoSchedule"
+
+longhornDriver:
+  nodeSelector:
+    longhorn: "true"
+  tolerations:
+    - key: "node-role.kubernetes.io/longhorn"
+      operator: "Exists"
+      effect: "NoSchedule"
+
+longhornUI:
+  nodeSelector:
+    longhorn: "true"
+  tolerations:
+    - key: "node-role.kubernetes.io/longhorn"
+      operator: "Exists"
+      effect: "NoSchedule"
+
+longhornInstanceManager:
+  nodeSelector:
+    longhorn: "true"
+  tolerations:
+    - key: "node-role.kubernetes.io/longhorn"
+      operator: "Exists"
+      effect: "NoSchedule"

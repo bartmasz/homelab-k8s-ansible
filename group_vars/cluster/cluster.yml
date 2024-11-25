@@ -1,0 +1,50 @@
+# Versions
+kubernetes_version: v1.30
+flannel_version: v0.25.5
+metallb_version: v0.14.8
+traefik_chart_version: v30.0.2
+cert_manager_version: v1.15.2
+reflector_chart_version: v7.1.288
+nfs_provisioner_version: 4.0.18
+prometheus_chart_version: v61.7.2
+longhorn_chart_version: 1.6.2
+
+# Cert Manager settings
+cert_manager_self_signed_ca: false
+cert_manager_self_signed_local_cert: false
+cert_manager_letsencrypt_staging: false
+cert_manager_letsencrypt_production: true
+certificate_enviroment: production # production or staging or local
+
+# Secrets
+metallb_ip_pool: "{{ vault_metallb_ip_pool }}"
+
+traefik_lb_ip: "{{ vault_traefik_lb_ip }}"
+traefik_dashboard_url: "{{ vault_traefik_dashboard_url }}"
+traefik_dashboard_usermame: "{{ vault_traefik_dashboard_usermame }}"
+traefik_dashboard_password: "{{ vault_traefik_dashboard_password }}"
+
+cert_manager_cloudflare_email: "{{ vault_cert_manager_cloudflare_email }}"
+cert_manager_cloudflare_api_token: "{{ vault_cert_manager_cloudflare_api_token }}"
+cert_manager_cloudflare_domain: "{{ vault_cert_manager_cloudflare_domain }}"
+cert_manager_cloudflare_zone: "{{ vault_cert_manager_cloudflare_zone }}"
+
+cert_manager_self_signed_ca_country_name: "{{ vault_cert_manager_self_signed_ca_country_name }}"
+cert_manager_self_signed_ca_email: "{{ vault_cert_manager_self_signed_ca_email }}"
+cert_manager_self_signed_ca_common_name: "{{ vault_cert_manager_self_signed_ca_common_name }}"
+cert_manager_self_signed_ca_organization_name: "{{ vault_cert_manager_self_signed_ca_organization_name }}"
+
+cert_manager_letsencrypt_email: "{{ vault_cert_manager_letsencrypt_email }}"
+
+nfs_server_ip: "{{ vault_nfs_server_ip }}"
+nfs_server_src: "{{ vault_nfs_server_src }}"
+nfs_privisioner_default_class: "{{ vault_nfs_privisioner_default_class }}"
+
+grafana_url: "{{ vault_grafana_url }}"
+grafana_username: "{{ vault_grafana_username }}"
+grafana_password: "{{ vault_grafana_password }}"
+
+
+argocd_ui_url: "{{ vault_argocd_ui_url }}"
+
+longhorn_ui_url: "{{ vault_longhorn_ui_url }}"

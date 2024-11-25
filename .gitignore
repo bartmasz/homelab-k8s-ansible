@@ -1,0 +1,10 @@
+# Ansible
+inventory.ini
+k8s_join_command.sh
+.fact_cache/
+
+# VSCode
+.vscode/
+
+# Misc
+.DS_Store
