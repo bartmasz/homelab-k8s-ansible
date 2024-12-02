@@ -11,7 +11,7 @@ spec:
       reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "traefik,default"
       reflector.v1.k8s.emberstack.com/reflection-auto-enabled: "true"
     labels:
-      environment: {{ certificate_enviroment }}
+      environment: {{ certificate_environment }}
       issuer: local-ca
   issuerRef:
     name: local-ca
