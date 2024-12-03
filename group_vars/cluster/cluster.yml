@@ -1,20 +1,20 @@
 # Versions
-kubernetes_version: v1.30
-flannel_version: v0.25.5
+kubernetes_version: v1.31
+flannel_version: v0.26.1
 metallb_version: v0.14.8
-traefik_chart_version: v30.0.2
-cert_manager_version: v1.15.2
+traefik_chart_version: v33.1.0
+cert_manager_version: v1.16.2
 reflector_chart_version: v7.1.288
 nfs_provisioner_version: 4.0.18
 prometheus_chart_version: v61.7.2
-longhorn_chart_version: 1.6.2
+longhorn_chart_version: 1.7.2
 
 # Cert Manager settings
 cert_manager_self_signed_ca: false
 cert_manager_self_signed_local_cert: false
 cert_manager_letsencrypt_staging: false
 cert_manager_letsencrypt_production: true
-certificate_enviroment: production # production or staging or local
+certificate_environment: production # production or staging or local
 
 # Secrets
 metallb_ip_pool: "{{ vault_metallb_ip_pool }}"
@@ -43,7 +43,6 @@ nfs_privisioner_default_class: "{{ vault_nfs_privisioner_default_class }}"
 grafana_url: "{{ vault_grafana_url }}"
 grafana_username: "{{ vault_grafana_username }}"
 grafana_password: "{{ vault_grafana_password }}"
-
 
 argocd_ui_url: "{{ vault_argocd_ui_url }}"
 

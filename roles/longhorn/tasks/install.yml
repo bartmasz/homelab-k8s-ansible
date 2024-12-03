@@ -1,4 +1,12 @@
-- name: Longhorn => Install required packages
+- name: Longhorn => Install required packages on managers
+  become: true
+  ansible.builtin.apt:
+    pkg:
+      - jq
+      - open-iscsi
+      - cryptsetup
+
+- name: Longhorn => Install required packages on workers
   become: true
   ansible.builtin.apt:
     pkg:
@@ -8,6 +16,24 @@
   delegate_to: "{{ item }}"
   with_items: "{{ groups['workers'] }}"
   run_once: true # Ensures the task is only run once per worker, even if there are multiple manager nodes.
+
+- name: Longhorn => Load iscsi_tcp module on workers
+  become: true
+  community.general.modprobe:
+    name: iscsi_tcp
+    state: present
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['workers'] }}"
+  run_once: true
+
+- name: Longhorn => Load dm_crypt module on workers
+  become: true
+  community.general.modprobe:
+    name: dm_crypt
+    state: present
+  delegate_to: "{{ item }}"
+  with_items: "{{ groups['workers'] }}"
+  run_once: true
 
 - name: Longhorn => Add labels to Longhorn nodes
   ansible.builtin.command: kubectl label node {{ item }} longhorn=true --overwrite

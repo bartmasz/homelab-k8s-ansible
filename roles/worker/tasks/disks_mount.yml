@@ -1,0 +1,37 @@
+- name: Install parted
+  ansible.builtin.package:
+    name: parted
+    state: present
+
+- name: Create a new ext4 primary partition
+  community.general.parted:
+    device: "{{ item }}"
+    number: 1
+    state: present
+  register: disk_info
+  loop:
+    - /dev/sdc
+    - /dev/sdb
+
+- name: Format partitions as ext4
+  community.general.filesystem:
+    fstype: ext4
+    dev: "{{ item }}"
+  loop:
+    - /dev/sdb1
+    - /dev/sdc1
+
+- name: Mount sdb and sdc
+  ansible.posix.mount:
+    path: "{{ item.path }}"
+    src: "{{ item.device }}"
+    fstype: ext4
+    opts: defaults
+    state: mounted
+  loop:
+    - { device: "/dev/sdb1", path: "/mnt/longhorn" }
+    - { device: "/dev/sdc1", path: "/mnt/minio" }
+
+- name: Reload deamon
+  ansible.builtin.systemd_service:
+    daemon_reload: true

@@ -1,3 +1,7 @@
+- name: Worker disk mount
+  ansible.builtin.import_tasks: disks_mount.yml
+  become: true
+  tags: worker-disks-mount
 - name: Worker join cluster
   ansible.builtin.import_tasks: join.yml
   tags: worker-join
