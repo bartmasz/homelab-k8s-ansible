@@ -1,5 +1,5 @@
 defaultSettings:
-  defaultDataPath: /var/lib/longhorn/
+  defaultDataPath: /mnt/longhorn
   defaultReplicaCount: 3
   guaranteedEngineCPU: 0.25
   defaultLonghornStaticStorageClass: longhorn

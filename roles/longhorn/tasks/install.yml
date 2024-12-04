@@ -22,6 +22,7 @@
   community.general.modprobe:
     name: iscsi_tcp
     state: present
+    persistent: present
   delegate_to: "{{ item }}"
   with_items: "{{ groups['workers'] }}"
   run_once: true
@@ -31,6 +32,7 @@
   community.general.modprobe:
     name: dm_crypt
     state: present
+    persistent: present
   delegate_to: "{{ item }}"
   with_items: "{{ groups['workers'] }}"
   run_once: true
