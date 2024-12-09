@@ -1,0 +1,47 @@
+- name: Install => Create manifest folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - ./manifests
+    - ./manifests/minio
+
+- name: MinIO => Copy MinIO Tenant Helm values
+  ansible.builtin.copy:
+    src: tenant-values.yaml
+    dest: ~/manifests/minio/tenant-values.yaml
+    mode: "0644"
+
+- name: MinIO => Add minio-operator repo
+  kubernetes.core.helm_repository:
+    name: minio-operator
+    repo_url: https://operator.min.io
+
+- name: MinIO => Install MinIO Tenant
+  kubernetes.core.helm:
+    name: operator
+    chart_ref: minio-operator/tenant
+    chart_version: "{{ minio_operator_chart_version }}"
+    release_namespace: minio-tenant
+    create_namespace: true
+    wait: true
+    values_files:
+      - ./manifests/minio/tenant-values.yaml
+
+- name: MinIO => Apply the MinIO ingress route
+  kubernetes.core.k8s:
+    state: present
+    template: "{{ item }}"
+  loop:
+    - templates/console_ingress.yaml.j2
+    - templates/api_ingress.yaml.j2
+
+- name: MinIO => Update PiHole DNS
+  delegate_to: pihole
+  ansible.builtin.lineinfile:
+    path: /etc/pihole/custom.list
+    line: "{{ traefik_lb_ip }} {{ item }}"
+  loop:
+    - "{{ minio_console_url }}"
+    - "{{ minio_api_url }}"

@@ -1,0 +1,9 @@
+- name: MinIO Operator install
+  ansible.builtin.import_tasks: operator.yml
+  tags: minio-operator-install
+- name: MinIO StorageClass and PersistentVolume
+  ansible.builtin.import_tasks: pv.yml
+  tags: minio-pv
+- name: MinIO Tenant install
+  ansible.builtin.import_tasks: tenant.yml
+  tags: minio-tenant-install

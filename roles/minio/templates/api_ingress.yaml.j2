@@ -1,0 +1,19 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: minio-api
+  namespace: minio-tenant
+  annotations:
+    kubernetes.io/ingress.class: traefik-external
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`{{ minio_api_url }}`)
+      priority: 11
+      services:
+        - name: myminio-hl
+          port: 9000
+  tls:
+    secretName: "{{ cert_manager_cloudflare_domain | replace('.', '-') }}-{{ certificate_environment }}-tls"

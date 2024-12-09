@@ -1,0 +1,24 @@
+- name: Create pv1 folders on the worker nodes
+  become: true
+  ansible.builtin.file:
+    path: /mnt/minio/pv1
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ item }}"
+  run_once: true
+  loop: "{{ groups['workers'] }}"
+
+- name: Create pv2 folders on the worker nodes
+  become: true
+  ansible.builtin.file:
+    path: /mnt/minio/pv2
+    state: directory
+    mode: "0755"
+  delegate_to: "{{ item }}"
+  run_once: true
+  loop: "{{ groups['workers'] }}"
+
+- name: Create StorageClass
+  kubernetes.core.k8s:
+    state: present
+    definition: "{{ lookup('template', 'pv.yaml.j2') }}"

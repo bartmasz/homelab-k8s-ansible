@@ -1,0 +1,30 @@
+- name: Install => Create manifest folder
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - ./manifests
+    - ./manifests/minio
+
+- name: MinIO => Copy MinIO Operator Helm values
+  ansible.builtin.copy:
+    src: operator-values.yaml
+    dest: ~/manifests/minio/operator-values.yaml
+    mode: "0644"
+
+- name: MinIO => Add minio-operator repo
+  kubernetes.core.helm_repository:
+    name: minio-operator
+    repo_url: https://operator.min.io
+
+- name: MinIO => Install MinIO Operator
+  kubernetes.core.helm:
+    name: operator
+    chart_ref: minio-operator/operator
+    chart_version: "{{ minio_operator_chart_version }}"
+    release_namespace: minio-operator
+    create_namespace: true
+    wait: true
+    # values_files:
+    #   - ./manifests/minio/operator-values.yaml
