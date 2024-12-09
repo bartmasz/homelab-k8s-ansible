@@ -1,3 +1,6 @@
+# Worker settings
+worker_data_disks: "{{ vault_worker_data_disks }}"
+
 # Versions
 kubernetes_version: v1.31
 flannel_version: v0.26.1
@@ -8,6 +11,7 @@ reflector_chart_version: v7.1.288
 nfs_provisioner_version: 4.0.18
 prometheus_chart_version: v61.7.2
 longhorn_chart_version: 1.7.2
+minio_operator_chart_version: 6.0.4
 
 # Cert Manager settings
 cert_manager_self_signed_ca: false
@@ -47,3 +51,6 @@ grafana_password: "{{ vault_grafana_password }}"
 argocd_ui_url: "{{ vault_argocd_ui_url }}"
 
 longhorn_ui_url: "{{ vault_longhorn_ui_url }}"
+
+minio_console_url: "{{ vault_minio_console_url }}"
+minio_api_url: "{{ vault_minio_api_url }}"

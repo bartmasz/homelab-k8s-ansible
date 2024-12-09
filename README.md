@@ -21,7 +21,7 @@ pip3 install -r requirements.txt
 ## Edit Ansible Vault secrets
 
 ```bash
-EDITOR='code --wait' ansible-vault edit group_vars/vault.yml
+EDITOR='code --wait' ansible-vault edit group_vars/cluster/vault.yml
 ```
 
 ## Deploy Kubernetes cluster

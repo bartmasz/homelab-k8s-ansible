@@ -17,10 +17,11 @@
     - role: reflector
     - role: cert_manager
     - role: traefik
+    - role: longhorn
+    - role: minio
     - role: nfs_provisioner
     - role: argocd
     - role: monitoring
-    - role: longhorn
 - name: Test Deployments
   hosts: managers
   roles:
